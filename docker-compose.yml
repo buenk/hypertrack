@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    container_name: hypertrack_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hypertrack
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: hypertrack_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/hypertrack
+    depends_on:
+      - db
+
+volumes:
+  db_data:
