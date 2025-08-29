@@ -46,6 +46,10 @@ export async function getAllFoods() {
   });
 }
 
+export async function getFoodById(id: string) {
+  return db.food.findUnique({ where: { id } });
+}
+
 export async function getOrCreateFoodByBarcode(barcode: string) {
   // Check if already in DB
   let food = await db.food.findUnique({ where: { barcode } });

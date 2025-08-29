@@ -1,9 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
 import {
   Table,
   TableBody,
@@ -15,11 +13,10 @@ import {
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import { getFoodLogs } from "@/lib/food-log-crud";
-import { getSymptomLogs } from "@/lib/symptom-log-crud";
+import { Beef } from "lucide-react";
 
 export default function FoodLogsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
   const [foodLogs, setFoodLogs] = useState<
     Array<{
       id: string;
@@ -29,35 +26,31 @@ export default function FoodLogsPage() {
       notes?: string;
     }>
   >([]);
-  const [symptomLogs, setSymptomLogs] = useState<
-    Array<{
-      id: string;
-      createdAt: string | Date;
-      symptom: string;
-      severity: number;
-      notes?: string;
-    }>
-  >([]);
 
   useEffect(() => {
     (async () => {
       try {
-        const [fl, sl] = await Promise.all([getFoodLogs(), getSymptomLogs()]);
+        const fl = await getFoodLogs();
         setFoodLogs(fl);
-        setSymptomLogs(sl);
       } catch {}
     })();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Food logs</h1>
-          <p className="text-gray-600 mt-2">Track your food.</p>
+    <>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex w-full flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Food logs</h1>
+            <p className="mt-2 text-muted-foreground">Track your food.</p>
+          </div>
+          <Button
+            onClick={() => router.push("/food_logs/new")}
+            className="mb-4 md:mb-0 mt-4 md:mt-0"
+          >
+            <Beef /> Log food
+          </Button>
         </div>
-
-        <Button onClick={() => router.push("/food/new")}>Add food</Button>
 
         <div className="mt-10 space-y-10">
           <div>
@@ -68,7 +61,6 @@ export default function FoodLogsPage() {
                   <TableHead>Date</TableHead>
                   <TableHead>Food</TableHead>
                   <TableHead>Quantity</TableHead>
-                  <TableHead>Notes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -84,9 +76,6 @@ export default function FoodLogsPage() {
                       </TableCell>
                       <TableCell className="font-medium">{log.food}</TableCell>
                       <TableCell>{log.quantity ?? "-"}</TableCell>
-                      <TableCell className="max-w-[280px] truncate">
-                        {log.notes ?? "-"}
-                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -96,6 +85,6 @@ export default function FoodLogsPage() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

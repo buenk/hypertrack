@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "../ui/label";
 
 type SymptomOption = { id: string; name: string };
 
@@ -62,9 +63,9 @@ export function SymptomForm({
   return (
     <form action={onCreateSymptom} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="name" className="text-sm font-medium">
+        <Label htmlFor="name" className="text-sm font-medium">
           Name
-        </label>
+        </Label>
         <Input id="name" name="name" placeholder="e.g. Headache" required />
       </div>
 

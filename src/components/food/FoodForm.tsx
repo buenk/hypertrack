@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   submitFood,
@@ -10,13 +9,6 @@ import {
   lookupFoodByBarcodeAction,
 } from "../../app/food/actions";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -28,28 +20,12 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { Label } from "../ui/label";
 
-type FoodOption = { id: string; name: string };
-type FoodLogRow = {
-  id: string;
-  createdAt: string | Date;
-  food: string;
-  quantity?: string;
-  notes?: string;
-};
-
-export function FoodForm({
-  foods = [] as FoodOption[],
-  logs = [] as FoodLogRow[],
-}: {
-  foods?: FoodOption[];
-  logs?: FoodLogRow[];
-}) {
+export function FoodForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"log" | "create" | "search">("log");
-  const [selectedFoodId, setSelectedFoodId] = useState<string>("");
-  const [unitValue, setUnitValue] = useState<string>("");
+  const [mode, setMode] = useState<"create" | "search">("create");
   const [barcodeValue, setBarcodeValue] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchPage, setSearchPage] = useState<number>(1);
@@ -62,14 +38,10 @@ export function FoodForm({
   function onSubmit(formData: FormData) {
     setError(null);
     startTransition(async () => {
-      if (selectedFoodId) {
-        const f = foods.find((x) => x.id === selectedFoodId);
-        if (f) formData.set("food", f.name);
-      }
       const res = await submitFood(formData);
       if ("error" in res) setError(res.error ?? null);
       else {
-        toast.success("Food log added");
+        toast.success("Food added");
         router.refresh();
       }
     });
@@ -82,7 +54,7 @@ export function FoodForm({
       if ("error" in res) setError(res.error ?? null);
       else {
         toast.success("Food created");
-        setMode("log");
+        setMode("create");
         router.refresh();
       }
     });
@@ -99,9 +71,9 @@ export function FoodForm({
         <TabsContent value="create">
           <form action={onCreateFood} className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">
+              <Label htmlFor="name" className="text-sm font-medium">
                 Name
-              </label>
+              </Label>
               <Input
                 id="name"
                 name="name"
@@ -112,15 +84,15 @@ export function FoodForm({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label htmlFor="brand" className="text-sm font-medium">
+                <Label htmlFor="brand" className="text-sm font-medium">
                   Brand (optional)
-                </label>
+                </Label>
                 <Input id="brand" name="brand" />
               </div>
               <div className="space-y-2">
-                <label htmlFor="barcode" className="text-sm font-medium">
+                <Label htmlFor="barcode" className="text-sm font-medium">
                   Barcode (optional)
-                </label>
+                </Label>
                 <div className="flex gap-2">
                   <Input
                     id="barcode"
@@ -149,27 +121,27 @@ export function FoodForm({
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <label htmlFor="calories" className="text-sm font-medium">
-                  Calories
-                </label>
+                <Label htmlFor="calories" className="text-sm font-medium">
+                  Calories (per 100g)
+                </Label>
                 <Input id="calories" name="calories" type="number" step="0.1" />
               </div>
               <div className="space-y-2">
-                <label htmlFor="protein" className="text-sm font-medium">
-                  Protein (g)
-                </label>
+                <Label htmlFor="protein" className="text-sm font-medium">
+                  Protein (per 100g)
+                </Label>
                 <Input id="protein" name="protein" type="number" step="0.1" />
               </div>
               <div className="space-y-2">
-                <label htmlFor="carbs" className="text-sm font-medium">
-                  Carbs (g)
-                </label>
+                <Label htmlFor="carbs" className="text-sm font-medium">
+                  Carbs (per 100g)
+                </Label>
                 <Input id="carbs" name="carbs" type="number" step="0.1" />
               </div>
               <div className="space-y-2">
-                <label htmlFor="fat" className="text-sm font-medium">
-                  Fat (g)
-                </label>
+                <Label htmlFor="fat" className="text-sm font-medium">
+                  Fat (per 100g)
+                </Label>
                 <Input id="fat" name="fat" type="number" step="0.1" />
               </div>
             </div>
@@ -255,7 +227,7 @@ export function FoodForm({
                             startTransition(async () => {
                               await lookupFoodByBarcodeAction(fd);
                               toast.success("Food added");
-                              setMode("log");
+                              setMode("create");
                               router.refresh();
                             });
                           }}

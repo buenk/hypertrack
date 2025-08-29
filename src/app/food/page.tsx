@@ -1,16 +1,29 @@
-import { FoodForm } from "../../components/food/FoodForm";
-import { getFoodLogs } from "@/lib/food-log-crud";
 import { getAllFoods } from "@/lib/food-crud";
+import { FoodView } from "@/components/food/FoodView";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+
 export default async function FoodPage() {
-  const [logs, foods] = await Promise.all([getFoodLogs(), getAllFoods()]);
+  const foods = await getAllFoods();
 
   return (
-    <div className="mx-auto max-w-xl w-full p-6">
-      <h1 className="text-2xl font-semibold mb-4">Add Food Log</h1>
-      <FoodForm
-        foods={foods.map((f) => ({ id: f.id, name: f.name }))}
-        logs={logs}
-      />
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold">Foods</h1>
+          <p className="text-sm text-muted-foreground">
+            Add, edit, and view foods
+          </p>
+        </div>
+        <Link href="/food/new">
+          <Button>
+            <Plus />
+            Add Food
+          </Button>
+        </Link>
+      </div>
+      <FoodView foods={foods} />
     </div>
   );
 }

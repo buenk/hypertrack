@@ -1,9 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { useSession } from "@/lib/auth-client";
 import {
   Table,
   TableBody,
@@ -14,21 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { getFoodLogs } from "@/lib/food-log-crud";
 import { getSymptomLogs } from "@/lib/symptom-log-crud";
+import { Plus } from "lucide-react";
 
 export default function SymptomLogsPage() {
   const router = useRouter();
-  const { data: session } = useSession();
-  const [foodLogs, setFoodLogs] = useState<
-    Array<{
-      id: string;
-      createdAt: string | Date;
-      food: string;
-      quantity?: string;
-      notes?: string;
-    }>
-  >([]);
   const [symptomLogs, setSymptomLogs] = useState<
     Array<{
       id: string;
@@ -42,24 +30,27 @@ export default function SymptomLogsPage() {
   useEffect(() => {
     (async () => {
       try {
-        const [fl, sl] = await Promise.all([getFoodLogs(), getSymptomLogs()]);
-        setFoodLogs(fl);
+        const sl = await getSymptomLogs();
         setSymptomLogs(sl);
       } catch {}
     })();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Symptom Logs</h1>
-          <p className="text-gray-600 mt-2">Track your symptoms.</p>
+    <>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-3xl font-bold">Symptom Logs</h1>
+            <p className="mt-2 text-muted-foreground">Track your symptoms.</p>
+          </div>
+          <Button
+            onClick={() => router.push("/symptom_logs/new")}
+            className="mb-4"
+          >
+            <Plus /> Log symptom
+          </Button>
         </div>
-
-        <Button onClick={() => router.push("/symptom_logs/new")}>
-          Log symptom
-        </Button>
 
         <div>
           <h2 className="text-xl font-semibold mb-3">Recent Symptom Logs</h2>
@@ -96,6 +87,6 @@ export default function SymptomLogsPage() {
           </Table>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -25,21 +25,32 @@ export async function createFoodAction(formData: FormData) {
   const name = formData.get("name")?.toString().trim();
   const brand = formData.get("brand")?.toString().trim() || undefined;
   const barcode = formData.get("barcode")?.toString().trim() || undefined;
-  const calories = formData.get("calories")?.toString().trim();
-  const protein = formData.get("protein")?.toString().trim();
-  const carbs = formData.get("carbs")?.toString().trim();
-  const fat = formData.get("fat")?.toString().trim();
+  const calories = formData.get("calories");
+  const protein = formData.get("protein");
+  const carbs = formData.get("carbs");
+  const fat = formData.get("fat");
 
   if (!name) return { error: "Name is required" } as const;
+
+  // Parse numbers without treating 0 as undefined
+  const parseMaybeNumber = (
+    v: FormDataEntryValue | null
+  ): number | undefined => {
+    if (v == null) return undefined;
+    const str = v.toString().trim();
+    if (str === "") return undefined;
+    const n = Number(str.replace(",", "."));
+    return Number.isNaN(n) ? undefined : n;
+  };
 
   await createFood({
     name,
     brand,
     barcode,
-    calories: calories ? Number(calories) : undefined,
-    protein: protein ? Number(protein) : undefined,
-    carbs: carbs ? Number(carbs) : undefined,
-    fat: fat ? Number(fat) : undefined,
+    calories: parseMaybeNumber(calories),
+    protein: parseMaybeNumber(protein),
+    carbs: parseMaybeNumber(carbs),
+    fat: parseMaybeNumber(fat),
   });
 
   revalidatePath("/food");

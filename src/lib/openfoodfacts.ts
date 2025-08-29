@@ -29,7 +29,22 @@ export async function searchProducts(query: string, pageSize = 10) {
   );
   const data = await res.json();
 
-  return data.products.map((p: any) => ({
+  type OFFProduct = {
+    product_name?: string;
+    brands?: string;
+    code: string;
+    nutriments?: {
+      [key: string]: unknown;
+      ["energy-kcal_100g"]?: number;
+      proteins_100g?: number;
+      carbohydrates_100g?: number;
+      fat_100g?: number;
+    };
+  };
+
+  const products: OFFProduct[] = (data.products ?? []) as OFFProduct[];
+
+  return products.map((p) => ({
     name: p.product_name || "Unknown",
     brand: p.brands || null,
     barcode: p.code,
