@@ -1,4 +1,4 @@
-import { SymptomForm } from "../../components/symptoms/SymptomForm";
+import { SymptomForm } from "../../../components/symptoms/SymptomForm";
 import { getAllSymptoms } from "@/lib/symptom-crud";
 
 export default async function SymptomsPage() {

@@ -50,6 +50,32 @@ export async function getFoodById(id: string) {
   return db.food.findUnique({ where: { id } });
 }
 
+export type UpdateFoodInput = {
+  name?: string;
+  brand?: string | null;
+  barcode?: string | null;
+  calories?: number | null;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+};
+
+export async function updateFood(id: string, input: UpdateFoodInput) {
+  const { name, brand, barcode, calories, protein, carbs, fat } = input;
+  return db.food.update({
+    where: { id },
+    data: {
+      ...(name !== undefined ? { name } : {}),
+      ...(brand !== undefined ? { brand } : {}),
+      ...(barcode !== undefined ? { barcode } : {}),
+      ...(calories !== undefined ? { calories } : {}),
+      ...(protein !== undefined ? { protein } : {}),
+      ...(carbs !== undefined ? { carbs } : {}),
+      ...(fat !== undefined ? { fat } : {}),
+    },
+  });
+}
+
 export async function getOrCreateFoodByBarcode(barcode: string) {
   // Check if already in DB
   let food = await db.food.findUnique({ where: { barcode } });

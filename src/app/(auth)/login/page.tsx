@@ -15,8 +15,7 @@ import {
 } from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
 
-export default function SignUpPage() {
-  const [name, setName] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,27 +28,27 @@ export default function SignUpPage() {
     setError("");
 
     try {
-      const { data, error: authError } = await authClient.signUp.email(
+      const { data, error: authError } = await authClient.signIn.email(
         {
           email,
           password,
-          name,
+          callbackURL: "/dashboard",
         },
         {
           onSuccess: () => {
             router.push("/dashboard");
           },
           onError: (ctx) => {
-            setError(ctx.error.message || "Sign up failed. Please try again.");
+            setError(ctx.error.message || "Login failed. Please try again.");
           },
         }
       );
 
       if (authError) {
-        setError(authError.message || "Sign up failed. Please try again.");
+        setError(authError.message || "Login failed. Please try again.");
       }
     } catch (error) {
-      console.error("Sign up error:", error);
+      console.error("Login error:", error);
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
@@ -57,14 +56,14 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Sign up
+            Sign in
           </CardTitle>
           <CardDescription className="text-center">
-            Create a new account to get started
+            Enter your email and password to sign in to your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -74,19 +73,6 @@ export default function SignUpPage() {
                 {error}
               </div>
             )}
-
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Enter your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -115,15 +101,15 @@ export default function SignUpPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-8">
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Sign up"}
+              {isLoading ? "Signing in..." : "Sign in"}
             </Button>
 
             <div className="text-sm text-center text-muted-foreground">
-              Already have an account?{" "}
-              <a href="/login" className="text-primary hover:underline">
-                Sign in
+              Don&apos;t have an account?{" "}
+              <a href="/signup" className="text-primary hover:underline">
+                Sign up
               </a>
             </div>
           </CardFooter>

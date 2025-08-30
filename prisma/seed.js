@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 const db = new PrismaClient();
 
@@ -22,6 +23,10 @@ async function main() {
   await db.symptomLog.deleteMany({});
   await db.food.deleteMany({});
   await db.symptom.deleteMany({});
+  // Also clear auth tables to avoid stale credential/provider mismatches
+  await db.session.deleteMany({});
+  await db.account.deleteMany({});
+  await db.verification.deleteMany({});
 
   // Ensure a user exists (or create a demo user)
   const user = await db.user.upsert({
@@ -34,6 +39,66 @@ async function main() {
       updatedAt: new Date(),
     },
   });
+
+  // Ensure seeded user can sign in with email+password
+  const seededPassword = "password123";
+  const passwordHash = await bcrypt.hash(seededPassword, 10);
+  // Store hash on User as well (some setups may read from User.password)
+  await db.user.update({
+    where: { id: user.id },
+    data: { password: passwordHash },
+  });
+  await db.account.upsert({
+    where: { id: `seed-email-${user.id}` },
+    update: {
+      password: passwordHash,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: `seed-email-${user.id}`,
+      accountId: user.email.toLowerCase(),
+      providerId: "email",
+      userId: user.id,
+      password: passwordHash,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  // Also create a row with accountId=user.id in case adapter queries by userId
+  await db.account.upsert({
+    where: { id: `seed-email-userid-${user.id}` },
+    update: {
+      password: passwordHash,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: `seed-email-userid-${user.id}`,
+      accountId: user.id,
+      providerId: "email",
+      userId: user.id,
+      password: passwordHash,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  // Some better-auth versions use providerId "email-password" for credentials
+  await db.account.upsert({
+    where: { id: `seed-email-password-${user.id}` },
+    update: {
+      password: passwordHash,
+      updatedAt: new Date(),
+    },
+    create: {
+      id: `seed-email-password-${user.id}`,
+      accountId: user.email,
+      providerId: "email-password",
+      userId: user.id,
+      password: passwordHash,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+  console.log("Seeded login:", { email: user.email, password: seededPassword });
 
   // Seed foods with rough macros per common serving
   const foodProfiles = [

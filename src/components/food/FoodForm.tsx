@@ -7,7 +7,7 @@ import {
   submitFood,
   createFoodAction,
   lookupFoodByBarcodeAction,
-} from "../../app/food/actions";
+} from "../../app/(protected)/food/actions";
 import { useRouter } from "next/navigation";
 import {
   Table,

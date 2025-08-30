@@ -4,7 +4,10 @@ import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { submitSymptom, createSymptomAction } from "../../app/symptoms/actions";
+import {
+  submitSymptom,
+  createSymptomAction,
+} from "../../app/(protected)/symptoms/actions";
 import { useRouter } from "next/navigation";
 import {
   Select,

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { submitFood } from "../../app/food/actions";
+import { submitFood } from "../../app/(protected)/food/actions";
 import { useRouter } from "next/navigation";
 import {
   Popover,

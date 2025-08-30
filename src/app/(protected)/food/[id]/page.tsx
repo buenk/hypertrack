@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { getFoodById } from "@/lib/food-crud";
 import { MacroPie } from "@/components/food/MacroPie";
+import { Pencil } from "lucide-react";
 
 export default async function FoodDetailsPage({
   params,
@@ -40,7 +41,15 @@ export default async function FoodDetailsPage({
     <div className="max-w-3xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">{food.name}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">{food.name}</CardTitle>
+            <Button asChild variant="outline">
+              <Link href={`/food/${food.id}/edit`}>
+                <Pencil />
+                Edit
+              </Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -74,12 +83,6 @@ export default async function FoodDetailsPage({
             <Macro label="Protein" value={food.protein} unit="g" />
             <Macro label="Carbs" value={food.carbs} unit="g" />
             <Macro label="Fat" value={food.fat} unit="g" />
-          </div>
-
-          <div className="pt-2">
-            <Button asChild>
-              <Link href="/food_logs/new">Log this food</Link>
-            </Button>
           </div>
         </CardContent>
       </Card>
