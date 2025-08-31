@@ -28,7 +28,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const { data, error: authError } = await authClient.signIn.email(
+      const { error: authError } = await authClient.signIn.email(
         {
           email,
           password,

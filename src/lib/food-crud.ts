@@ -46,6 +46,52 @@ export async function getAllFoods() {
   });
 }
 
+export async function getFilteredFoods(filters: {
+  search?: string;
+  brand?: string;
+  caloriesRange?: string;
+  page?: number;
+  pageSize?: number;
+}) {
+  const {
+    search,
+    brand,
+    caloriesRange,
+    page = 1,
+    pageSize = 10,
+  } = filters || {};
+
+  // Build a Prisma where clause from provided filters
+  const where: Record<string, unknown> = {};
+  if (search && search.trim()) {
+    where.name = { contains: search.trim(), mode: "insensitive" };
+  }
+  if (brand && brand.trim()) {
+    where.brand = { contains: brand.trim(), mode: "insensitive" };
+  }
+  if (caloriesRange) {
+    const r = caloriesRange.trim();
+    if (r.includes("-")) {
+      const [min, max] = r.split("-").map((n) => Number(n));
+      if (!Number.isNaN(min) && !Number.isNaN(max)) {
+        where.calories = { gte: min, lte: max };
+      }
+    } else if (r.endsWith("+")) {
+      const min = Number(r.slice(0, -1));
+      if (!Number.isNaN(min)) {
+        where.calories = { gte: min };
+      }
+    }
+  }
+
+  return db.food.findMany({
+    where,
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    orderBy: { createdAt: "desc" },
+  });
+}
+
 export async function getFoodById(id: string) {
   return db.food.findUnique({ where: { id } });
 }
@@ -88,4 +134,12 @@ export async function getOrCreateFoodByBarcode(barcode: string) {
   // Save in DB
   food = await db.food.create({ data: product });
   return food;
+}
+
+export async function deleteFood(id: string) {
+  // Delete dependent logs first to satisfy FK constraints
+  return db.$transaction([
+    db.foodLog.deleteMany({ where: { foodId: id } }),
+    db.food.delete({ where: { id } }),
+  ]);
 }

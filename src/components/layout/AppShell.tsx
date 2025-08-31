@@ -30,11 +30,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { ThemeSwitchButton } from "../ThemeSwitchButton";
+import { useSession, signOut } from "@/lib/auth-client";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme, systemTheme } = useTheme();
+  const { data: session } = useSession();
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
@@ -138,7 +140,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               setTheme={setTheme}
             />
             <Separator />
-            <UserBlock name="Your Name" email="you@example.com" />
+            <UserBlock
+              name={session?.user?.name || "User"}
+              email={session?.user?.email || "No email"}
+              onLogout={() =>
+                signOut({
+                  fetchOptions: { onSuccess: () => router.push("/login") },
+                })
+              }
+            />
           </div>
         </SidebarFooter>
         <SidebarRail />
@@ -170,7 +180,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function UserBlock({ name, email }: { name: string; email: string }) {
+function UserBlock({
+  name,
+  email,
+  onLogout,
+}: {
+  name: string;
+  email: string;
+  onLogout: () => void;
+}) {
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -182,10 +200,18 @@ function UserBlock({ name, email }: { name: string; email: string }) {
       <div className="bg-muted text-foreground/80 flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium">
         {initials}
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="text-sm font-medium truncate">{name}</div>
         <div className="text-xs text-muted-foreground truncate">{email}</div>
       </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onLogout}
+        className="text-xs px-2 py-1 h-auto"
+      >
+        Logout
+      </Button>
     </div>
   );
 }

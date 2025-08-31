@@ -2,6 +2,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
+# Ensure Prisma schema is available during postinstall (prisma generate)
+COPY prisma ./prisma
 RUN npm install -g pnpm && pnpm install
 
 # Build

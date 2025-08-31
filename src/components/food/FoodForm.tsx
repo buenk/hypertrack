@@ -25,7 +25,6 @@ import { Label } from "../ui/label";
 export function FoodForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"create" | "search">("create");
   const [barcodeValue, setBarcodeValue] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchPage, setSearchPage] = useState<number>(1);
@@ -35,18 +34,6 @@ export function FoodForm() {
   const [searchTotalPages, setSearchTotalPages] = useState<number>(0);
   const router = useRouter();
 
-  function onSubmit(formData: FormData) {
-    setError(null);
-    startTransition(async () => {
-      const res = await submitFood(formData);
-      if ("error" in res) setError(res.error ?? null);
-      else {
-        toast.success("Food added");
-        router.refresh();
-      }
-    });
-  }
-
   function onCreateFood(formData: FormData) {
     setError(null);
     startTransition(async () => {
@@ -54,7 +41,6 @@ export function FoodForm() {
       if ("error" in res) setError(res.error ?? null);
       else {
         toast.success("Food created");
-        setMode("create");
         router.refresh();
       }
     });
@@ -178,15 +164,18 @@ export function FoodForm() {
                     )}&search_simple=1&action=process&json=1&page_size=10&page=${searchPage}`;
                     try {
                       const res = await fetch(url);
-                      const data = await res.json();
-                      const items = (data.products || []).map((p: any) => ({
+                      const data: {
+                        products?: Array<Record<string, unknown>>;
+                        page_count?: number;
+                      } = await res.json();
+                      const items = (data.products || []).map((p) => ({
                         code: p.code as string,
                         name: (p.product_name as string) || "Unnamed",
                         brands: (p.brands as string) || undefined,
                       }));
                       setSearchResults(items);
                       setSearchTotalPages(Number(data.page_count) || 0);
-                    } catch (e) {
+                    } catch {
                       setError("Search failed");
                     }
                   });
@@ -227,7 +216,6 @@ export function FoodForm() {
                             startTransition(async () => {
                               await lookupFoodByBarcodeAction(fd);
                               toast.success("Food added");
-                              setMode("create");
                               router.refresh();
                             });
                           }}

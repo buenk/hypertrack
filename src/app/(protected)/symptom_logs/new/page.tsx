@@ -1,6 +1,8 @@
 import { SymptomLogForm } from "@/components/symptom_logs/SymptomLogForm";
 import { getAllSymptoms } from "@/lib/symptom-crud";
 
+export const dynamic = "force-dynamic";
+
 export default async function NewSymptomLogPage() {
   const symptoms = await getAllSymptoms();
 

@@ -2,22 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+//
 import { Button } from "@/components/ui/button";
-import {
-  submitSymptom,
-  createSymptomAction,
-} from "../../app/(protected)/symptoms/actions";
+import { submitSymptom } from "../../app/(protected)/symptoms/actions";
 import { useRouter } from "next/navigation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+//
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+//
 import { Label } from "../ui/label";
 
 type SymptomOption = { id: string; name: string };
@@ -29,9 +20,7 @@ export function SymptomForm({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"log" | "create">("log");
-  const [selectedSymptomId, setSelectedSymptomId] = useState<string>("");
-  const [severity, setSeverity] = useState<string>("");
+  const [selectedSymptomId] = useState<string>("");
   const router = useRouter();
 
   function onSubmit(formData: FormData) {
@@ -50,21 +39,8 @@ export function SymptomForm({
     });
   }
 
-  function onCreateSymptom(formData: FormData) {
-    setError(null);
-    startTransition(async () => {
-      const res = await createSymptomAction(formData);
-      if ("error" in res) setError(res.error ?? null);
-      else {
-        toast.success("Symptom created");
-        setMode("log");
-        router.refresh();
-      }
-    });
-  }
-
   return (
-    <form action={onCreateSymptom} className="space-y-4">
+    <form action={onSubmit} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="name" className="text-sm font-medium">
           Name

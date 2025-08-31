@@ -5,8 +5,7 @@ export function scaleNutrition(
     carbs?: number;
     fat?: number;
   },
-  amount: number,
-  unit: string
+  amount: number
 ) {
   // Assume food values are per 100g/ml
   // If unit is "piece" or "slice", you may need to store a "serving size" in Food later

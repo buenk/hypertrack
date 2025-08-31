@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+export const dynamic = "force-dynamic";
+
 async function updateFoodAction(id: string, formData: FormData) {
   "use server";
 
@@ -34,9 +36,10 @@ async function updateFoodAction(id: string, formData: FormData) {
 export default async function EditFoodPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const food = await getFoodById(params.id);
+  const { id } = await params;
+  const food = await getFoodById(id);
   if (!food) return notFound();
 
   return (

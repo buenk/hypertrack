@@ -1,8 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createFoodLog } from "@/lib/food-log-crud";
-import { createFood, getOrCreateFoodByBarcode } from "@/lib/food-crud";
+import {
+  createFood,
+  deleteFood,
+  getOrCreateFoodByBarcode,
+} from "@/lib/food-crud";
 
 export async function submitFood(formData: FormData) {
   const food = formData.get("food")?.toString().trim();
@@ -64,4 +69,18 @@ export async function lookupFoodByBarcodeAction(formData: FormData) {
   await getOrCreateFoodByBarcode(barcode);
   revalidatePath("/food");
   return { ok: true } as const;
+}
+
+export async function deleteFoodAction(id: string) {
+  await deleteFood(id);
+  revalidatePath("/food");
+  return { ok: true } as const;
+}
+
+export async function deleteFoodFormAction(formData: FormData): Promise<void> {
+  const id = formData.get("id")?.toString();
+  if (!id) return;
+  await deleteFood(id);
+  revalidatePath("/food");
+  redirect("/food");
 }

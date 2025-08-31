@@ -3,6 +3,8 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { api } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -18,13 +20,15 @@ import { Button } from "@/components/ui/button";
 import { getFoodById } from "@/lib/food-crud";
 import { MacroPie } from "@/components/food/MacroPie";
 import { Pencil } from "lucide-react";
+import { FoodDeleteButton } from "@/components/food/FoodDeleteButton";
 
 export default async function FoodDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const food = await getFoodById(params.id);
+  const { id } = await params;
+  const food = await getFoodById(id);
   if (!food) return notFound();
 
   const session = await api.getSession({ headers: await headers() });
@@ -43,12 +47,17 @@ export default async function FoodDetailsPage({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl">{food.name}</CardTitle>
-            <Button asChild variant="outline">
-              <Link href={`/food/${food.id}/edit`}>
-                <Pencil />
-                Edit
-              </Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <FoodDeleteButton id={food.id} />
+              <Button variant="outline">
+                <Link href={`/food/${food.id}/edit`}>
+                  <div className="flex gap-2 items-center">
+                    <Pencil />
+                    Edit
+                  </div>
+                </Link>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">

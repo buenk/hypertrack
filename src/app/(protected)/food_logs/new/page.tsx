@@ -1,5 +1,8 @@
 import { FoodLogForm } from "@/components/food_logs/FoodLogForm";
 import { getAllFoods } from "@/lib/food-crud";
+
+export const dynamic = "force-dynamic";
+
 export default async function NewFoodLogPage() {
   const foods = await getAllFoods();
 

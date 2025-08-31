@@ -1,90 +1,57 @@
-"use client";
-
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useEffect, useState } from "react";
-import { getFoodLogs } from "@/lib/food-log-crud";
-import { Beef } from "lucide-react";
+import { Plus } from "lucide-react";
+import { FoodLogFilterBar } from "@/components/food_logs/FoodLogFilterBar";
+import { FoodLogPagination } from "@/components/food_logs/FoodLogPagination";
+import { getFilteredFoodLogs } from "@/lib/food-log-crud";
+import { FoodLogView } from "@/components/food_logs/FoodLogView";
 
-export default function FoodLogsPage() {
-  const router = useRouter();
-  const [foodLogs, setFoodLogs] = useState<
-    Array<{
-      id: string;
-      createdAt: string | Date;
-      food: string;
-      quantity?: string;
-      notes?: string;
-    }>
-  >([]);
+export const dynamic = "force-dynamic";
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const fl = await getFoodLogs();
-        setFoodLogs(fl);
-      } catch {}
-    })();
-  }, []);
+export default async function FoodLogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    search?: string;
+    brand?: string;
+    caloriesRange?: string;
+    page?: string;
+    pageSize?: string;
+  }>;
+}) {
+  const sp = await searchParams;
+
+  const logs = await getFilteredFoodLogs({
+    search: sp.search,
+    brand: sp.brand,
+    caloriesRange: sp.caloriesRange,
+    page: sp.page ? Number(sp.page) : undefined,
+    pageSize: sp.pageSize ? Number(sp.pageSize) : undefined,
+  });
 
   return (
-    <>
-      <div className="max-w-4xl mx-auto">
-        <div className="flex w-full flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Food logs</h1>
-            <p className="mt-2 text-muted-foreground">Track your food.</p>
-          </div>
-          <Button
-            onClick={() => router.push("/food_logs/new")}
-            className="mb-4 md:mb-0 mt-4 md:mt-0"
-          >
-            <Beef /> Log food
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold">Food logs</h1>
+          <p className="text-sm text-muted-foreground">Track your food.</p>
+        </div>
+        <Link href="/food_logs/new">
+          <Button>
+            <Plus />
+            Log food
           </Button>
-        </div>
-
-        <div className="mt-10 space-y-10">
-          <div>
-            <h2 className="text-xl font-semibold mb-3">Recent Food Logs</h2>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Food</TableHead>
-                  <TableHead>Quantity</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {foodLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={4}>No food logs yet.</TableCell>
-                  </TableRow>
-                ) : (
-                  foodLogs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell>
-                        {new Date(log.createdAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="font-medium">{log.food}</TableCell>
-                      <TableCell>{log.quantity ?? "-"}</TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-              <TableCaption>Showing latest 10 entries</TableCaption>
-            </Table>
-          </div>
-        </div>
+        </Link>
       </div>
-    </>
+      <FoodLogFilterBar
+        filters={{
+          search: sp.search ?? "",
+          brand: sp.brand ?? "",
+          caloriesRange: sp.caloriesRange ?? "",
+        }}
+      />
+      <FoodLogView logs={logs} />
+      <FoodLogPagination />
+    </div>
   );
 }

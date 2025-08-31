@@ -70,7 +70,9 @@ export function MacroPie({ protein, carbs, fat }: MacroPieProps) {
             <ChartLegend
               content={({ payload, verticalAlign }) => (
                 <ChartLegendContent
-                  payload={payload as readonly any[]}
+                  payload={
+                    payload as readonly { value: string; color?: string }[]
+                  }
                   verticalAlign={verticalAlign}
                   nameKey="macro"
                 />

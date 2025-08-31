@@ -1,7 +1,7 @@
 "use client";
 
 import { Food } from "@prisma/client";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -11,9 +11,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { UtensilsCrossed } from "lucide-react";
 
 export function FoodView({ foods }: { foods: Food[] }) {
-  if (foods.length === 0) return notFound();
+  if (foods.length === 0)
+    return (
+      <div className="mt-10 flex justify-center items-center h-full">
+        <p className="text-muted-foreground flex gap-2">
+          <UtensilsCrossed />
+          No foods found! Try adjusting your filters.
+        </p>
+      </div>
+    );
 
   return (
     <div>
@@ -21,9 +30,8 @@ export function FoodView({ foods }: { foods: Food[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
+            <TableHead>Calories</TableHead>
             <TableHead>Brand</TableHead>
-            <TableHead>Source</TableHead>
-            <TableHead>Barcode</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -41,9 +49,8 @@ export function FoodView({ foods }: { foods: Food[] }) {
                 onClick={() => redirect(`/food/${f.id}`)}
               >
                 <TableCell>{f.name}</TableCell>
+                <TableCell>{f.calories ?? "-"}</TableCell>
                 <TableCell>{f.brand ?? "-"}</TableCell>
-                <TableCell>{f.source}</TableCell>
-                <TableCell>{f.barcode ?? "-"}</TableCell>
               </TableRow>
             ))
           )}

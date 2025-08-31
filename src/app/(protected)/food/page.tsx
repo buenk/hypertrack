@@ -1,11 +1,33 @@
-import { getAllFoods } from "@/lib/food-crud";
+import { getFilteredFoods } from "@/lib/food-crud";
 import { FoodView } from "@/components/food/FoodView";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { FoodFilterBar } from "@/components/food/FoodFilterBar";
+import { FoodPagination } from "@/components/food/FoodPagination";
 
-export default async function FoodPage() {
-  const foods = await getAllFoods();
+export const dynamic = "force-dynamic";
+
+export default async function FoodPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    search?: string;
+    brand?: string;
+    caloriesRange?: string;
+    page?: string;
+    pageSize?: string;
+  }>;
+}) {
+  const sp = await searchParams;
+
+  const foods = await getFilteredFoods({
+    search: sp.search,
+    brand: sp.brand,
+    caloriesRange: sp.caloriesRange,
+    page: sp.page ? Number(sp.page) : undefined,
+    pageSize: sp.pageSize ? Number(sp.pageSize) : undefined,
+  });
 
   return (
     <div>
@@ -23,7 +45,15 @@ export default async function FoodPage() {
           </Button>
         </Link>
       </div>
+      <FoodFilterBar
+        filters={{
+          search: sp.search ?? "",
+          brand: sp.brand ?? "",
+          caloriesRange: sp.caloriesRange ?? "",
+        }}
+      />
       <FoodView foods={foods} />
+      <FoodPagination />
     </div>
   );
 }

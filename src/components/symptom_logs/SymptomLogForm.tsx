@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+//
 import { Label } from "../ui/label";
 
 type SymptomOption = { id: string; name: string };
@@ -29,7 +29,6 @@ export function SymptomLogForm({
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<"log" | "create">("log");
   const [selectedSymptomId, setSelectedSymptomId] = useState<string>("");
   const [severity, setSeverity] = useState<string>("");
   const router = useRouter();
@@ -45,19 +44,6 @@ export function SymptomLogForm({
       if ("error" in res) setError(res.error ?? null);
       else {
         toast.success("Symptom log added");
-        router.refresh();
-      }
-    });
-  }
-
-  function onCreateSymptom(formData: FormData) {
-    setError(null);
-    startTransition(async () => {
-      const res = await createSymptomAction(formData);
-      if ("error" in res) setError(res.error ?? null);
-      else {
-        toast.success("Symptom created");
-        setMode("log");
         router.refresh();
       }
     });
